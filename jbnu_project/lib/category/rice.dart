@@ -11,11 +11,21 @@ class RicePage extends StatefulWidget {
 
 class _RicePageState extends State<RicePage> {
   List<Map<String, dynamic>> _restaurants = [];
+  List<Map<String, dynamic>> _filteredRestaurants = [];
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchRestaurants();
+    _searchController.addListener(_filterRestaurants);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterRestaurants);
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchRestaurants() async {
@@ -27,15 +37,28 @@ class _RicePageState extends State<RicePage> {
       final jsonData = json.decode(jsonString);
       setState(() {
         _restaurants = List<Map<String, dynamic>>.from(jsonData['stores']);
+        _filteredRestaurants = _restaurants;
       });
     } else {
       throw Exception('Failed to load restaurants');
     }
   }
 
+  void _filterRestaurants() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredRestaurants = _restaurants.where((restaurant) {
+        final name = restaurant['storeName'].toString().toLowerCase();
+        final description = restaurant['description'].toString().toLowerCase();
+        return name.contains(query) || description.contains(query);
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           '밥집',
@@ -60,6 +83,7 @@ class _RicePageState extends State<RicePage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
+              controller: _searchController,
               decoration: InputDecoration(
                 prefixIcon: const Icon(
                   Icons.search,
@@ -94,9 +118,9 @@ class _RicePageState extends State<RicePage> {
             child: Container(
               color: Colors.white,
               child: ListView.builder(
-                itemCount: _restaurants.length,
+                itemCount: _filteredRestaurants.length,
                 itemBuilder: (context, index) {
-                  final restaurant = _restaurants[index];
+                  final restaurant = _filteredRestaurants[index];
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: CategoryItem(
@@ -138,6 +162,7 @@ class CategoryItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 5),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
+        color: Colors.white, // 배경색 흰색으로 설정
         border: Border.all(
           color: Color(0xFF2862AA),
           width: 5,

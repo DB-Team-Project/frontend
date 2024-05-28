@@ -16,7 +16,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> registerUser(String username, String password) async {
     final response = await http.post(
-      Uri.parse('http://your-backend-url.com/register'),
+      Uri.parse('http://localhost:8080/signup'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -36,8 +36,8 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> checkUsernameAvailability(String username) async {
-    final response = await http.get(Uri.parse(
-        'http://your-backend-url.com/check-username?username=$username'));
+    final response = await http.get(
+        Uri.parse('http://localhost:8080/check-username?username=$username'));
 
     if (response.statusCode == 200) {
       final users = json.decode(response.body) as List;
@@ -48,6 +48,7 @@ class _RegisterPageState extends State<RegisterPage> {
       throw Exception('Failed to check username availability');
     }
   }
+  // 아이디 중
 
   void _register() {
     if (_passwordController.text == _confirmPasswordController.text) {

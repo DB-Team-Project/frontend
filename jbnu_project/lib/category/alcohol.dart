@@ -36,6 +36,7 @@ class _AlcoholPageState extends State<AlcoholPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           '술집',
