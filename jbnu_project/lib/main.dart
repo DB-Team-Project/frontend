@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'find_in_map.dart';
 import 'find_in_category.dart';
 import 'login.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -13,27 +13,39 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ko', 'KR'),
+        Locale('en', 'US'),
+      ],
       home: LoginPage(),
     );
   }
 }
-
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("앱이름"),
+        title: Text(
+          "제휴 좋아",
+          style: TextStyle(
+            fontFamily: 'elec',
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2862AA),
+            fontSize: 40,
+          ),
+          ),
         centerTitle: true,
-        backgroundColor: Color(0xFF2862AA), // 짙은 파랑
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF2862AA), Color(0xFF5FC6D4)], // 배경 그라데이션
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+          color: Colors.white,
         ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -49,36 +61,37 @@ class MyHomePage extends StatelessWidget {
               },
               child: Container(
                 width: double.infinity,
-                height: 200,
+                height: 250,
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Color.fromARGB(80, 255, 255, 255),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color.fromARGB(66, 212, 212, 212),
-                      blurRadius: 20,
-                      offset: Offset(0, 5),
-                    ),
-                  ],
+                  border: Border.all(
+                    color: Color(0xFF2862AA),
+                    width: 5,
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Image.network(
-                      'https://via.placeholder.com/200',
-                      width: 200,
-                      height: 200,
+                    Image.asset(
+                      'assets/images/category.png',
+                      width: 180,
+                      height: 180,
                     ),
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Text("카테고리별",
+                          Text(" 카테고리별",
                               style:
-                                  TextStyle(color: Colors.black, fontSize: 24)),
-                          Text("제휴찾기",
+                                  TextStyle(
+                                    fontFamily: 'elec',
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2862AA), fontSize: 26),),
+                          Text("제휴 찾기",
                               style:
-                                  TextStyle(color: Colors.black, fontSize: 20)),
+                                  TextStyle(
+                                    fontFamily: 'elec',
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2862AA), fontSize: 30),),
                         ],
                       ),
                     ),
@@ -95,36 +108,38 @@ class MyHomePage extends StatelessWidget {
               },
               child: Container(
                 width: double.infinity,
-                height: 200,
+                height: 250,
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Color.fromARGB(80, 255, 255, 255),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color.fromARGB(66, 212, 212, 212),
-                      blurRadius: 20,
-                      offset: Offset(0, 5),
-                    ),
-                  ],
+                  border: Border.all(
+                    color: Color(0xFF2862AA),
+                    width: 5,
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Image.network(
-                      'https://via.placeholder.com/200',
-                      width: 200,
-                      height: 200,
+                    Image.asset(
+                      'assets/images/category.png',
+                      width: 180,
+                      height: 180
                     ),
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Text("내 주변",
+                          Text(" 내 주변",
                               style:
-                                  TextStyle(color: Colors.black, fontSize: 28)),
+                                  TextStyle(
+                                    fontFamily: 'elec',
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2862AA), fontSize: 30),
+                                    ),
                           Text("제휴 찾기",
                               style:
-                                  TextStyle(color: Colors.black, fontSize: 20)),
+                                  TextStyle(
+                                    fontFamily: 'elec',
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2862AA), fontSize: 28),),
                         ],
                       ),
                     ),
@@ -133,6 +148,22 @@ class MyHomePage extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        child: Container(
+          height: 50.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Image.asset(
+                      'assets/images/title.png',
+                      width: 150,
+                      height: 150,
+                    ),
+            ],
+          ),
         ),
       ),
     );

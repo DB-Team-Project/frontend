@@ -12,23 +12,30 @@ class FindInCategoryPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        title: Text("카테고리 별"),
-        backgroundColor: Color(0xFF2862AA), // 앱바 색상
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF2862AA), Color(0xFF5FC6D4)], // 배경 그라데이션
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+        title: const Text(
+          "카테고리 별",
+          style: TextStyle(
+            fontFamily: 'elec',
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2862AA),
+            fontSize: 30,
           ),
         ),
+        centerTitle: true,
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Expanded(
               child: GestureDetector(
@@ -38,7 +45,10 @@ class FindInCategoryPage extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => const RicePage()),
                   );
                 },
-                child: CategoryItem(title: "밥"),
+                child: const CategoryItem(
+                  title: "밥집",
+                  imagePath: 'assets/images/rice.png',
+                ),
               ),
             ),
             Expanded(
@@ -49,7 +59,10 @@ class FindInCategoryPage extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => const CafePage()),
                   );
                 },
-                child: CategoryItem(title: "카페"),
+                child: const CategoryItem(
+                  title: "카페",
+                  imagePath: 'assets/images/cafe.png',
+                ),
               ),
             ),
             Expanded(
@@ -57,11 +70,13 @@ class FindInCategoryPage extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const AlcoholPage()),
+                    MaterialPageRoute(builder: (context) => const AlcoholPage()),
                   );
                 },
-                child: CategoryItem(title: "술"),
+                child: const CategoryItem(
+                  title: "술집",
+                  imagePath: 'assets/images/alcohol.png',
+                ),
               ),
             ),
             Expanded(
@@ -72,10 +87,29 @@ class FindInCategoryPage extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => const OtherPage()),
                   );
                 },
-                child: CategoryItem(title: "기타"),
+                child: const CategoryItem(
+                  title: "기타",
+                  imagePath: 'assets/images/other.png',
+                ),
               ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        child: Container(
+          height: 50.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Image.asset(
+                'assets/images/title.png',
+                width: 150,
+                height: 150,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -84,37 +118,42 @@ class FindInCategoryPage extends StatelessWidget {
 
 class CategoryItem extends StatelessWidget {
   final String title;
-  const CategoryItem({required this.title});
+  final String imagePath;
+  const CategoryItem({required this.title, required this.imagePath});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 5),
-      padding: EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Color.fromARGB(80, 255, 255, 255), // 컨테이너 배경색
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Color.fromARGB(66, 212, 212, 212),
-            blurRadius: 20,
-            offset: Offset(0, 5),
-          ),
-        ],
+        border: Border.all(
+          color: Color(0xFF2862AA),
+          width: 5,
+        ),
       ),
       child: Row(
         children: [
           Container(
-            width: 100,
-            height: 100,
-            color: Colors.grey, // Placeholder for image
-            child: Center(child: Text("그림")),
+            width: 150,
+            height: 150,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(imagePath),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-          SizedBox(width: 20),
+          const SizedBox(width: 20),
           Expanded(
             child: Text(
               title,
-              style: TextStyle(fontSize: 24, color: Colors.black),
+              style: const TextStyle(
+                fontFamily: 'elec',
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2862AA),
+                fontSize: 30,
+              ),
             ),
           ),
         ],
