@@ -10,7 +10,7 @@ class RicePage extends StatefulWidget {
 }
 
 class _RicePageState extends State<RicePage> {
-  List<dynamic> _restaurants = [];
+  List<Map<String, dynamic>> _restaurants = [];
 
   @override
   void initState() {
@@ -20,11 +20,13 @@ class _RicePageState extends State<RicePage> {
 
   Future<void> _fetchRestaurants() async {
     final response =
-        await http.get(Uri.parse('http://your-backend-url.com/restaurants'));
+    await http.get(Uri.parse('http://localhost:8080/api/category/restaurant'));
 
     if (response.statusCode == 200) {
+      final jsonString = utf8.decode(response.bodyBytes);
+      final jsonData = json.decode(jsonString);
       setState(() {
-        _restaurants = json.decode(response.body);
+        _restaurants = List<Map<String, dynamic>>.from(jsonData['stores']);
       });
     } else {
       throw Exception('Failed to load restaurants');
@@ -35,9 +37,9 @@ class _RicePageState extends State<RicePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('밥집'),
+        title: const Text('밥집'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -46,10 +48,10 @@ class _RicePageState extends State<RicePage> {
       body: Column(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 hintText: '검색창',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -63,11 +65,13 @@ class _RicePageState extends State<RicePage> {
               itemBuilder: (context, index) {
                 final restaurant = _restaurants[index];
                 return Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: CategoryItem(
-                    title: restaurant['name'],
-                    imageUrl: restaurant['image'],
-                    description: restaurant['description'],
+                      storeId: restaurant['storeId'],
+                      storeName: restaurant['storeName'],
+                      description: restaurant['description'],
+                      storeImage: restaurant['storeImage'],
+                      location: restaurant['location']
                   ),
                 );
               },
@@ -80,21 +84,26 @@ class _RicePageState extends State<RicePage> {
 }
 
 class CategoryItem extends StatelessWidget {
-  final String title;
-  final String? imageUrl;
+  final int storeId;
+  final String storeName;
+  final String? storeImage;
   final String description;
+  final String location;
 
   const CategoryItem({
-    required this.title,
-    this.imageUrl,
+    Key? key,
+    required this.storeId,
+    required this.storeName,
     required this.description,
-  });
+    required this.location,
+    this.storeImage,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 5),
-      padding: EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         border: Border.all(),
       ),
@@ -103,22 +112,45 @@ class CategoryItem extends StatelessWidget {
           Container(
             width: 100,
             height: 100,
-            color: Colors.grey, // Placeholder for image
-            child: imageUrl != null
-                ? Image.network(imageUrl!, fit: BoxFit.cover)
-                : Center(child: Text("그림")),
+            color: Colors.grey,
+            child: storeImage != null && storeImage!.isNotEmpty
+                ? Image.network(
+              storeImage!,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                }
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                        : null,
+                  ),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return const Center(
+                  child: Text('Error loading image'),
+                );
+              },
+            )
+                : const Center(child: Text("그림")),
           ),
-          SizedBox(width: 20),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
-                  style: TextStyle(fontSize: 24),
+                  storeName,
+                  style: const TextStyle(fontSize: 24),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(description),
+                const SizedBox(height: 8),
+                Text('Location: $location'),
               ],
             ),
           ),
