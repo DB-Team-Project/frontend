@@ -3,6 +3,7 @@ import 'find_in_map.dart';
 import 'find_in_category.dart';
 import 'login.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,7 @@ class MyHomePage extends StatelessWidget {
             color: Color(0xFF2862AA),
             fontSize: 40,
           ),
-          ),
+        ),
         centerTitle: true,
         backgroundColor: Color.fromARGB(255, 255, 255, 255),
       ),
@@ -80,18 +82,22 @@ class MyHomePage extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Text(" 카테고리별",
-                              style:
-                                  TextStyle(
-                                    fontFamily: 'elec',
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2862AA), fontSize: 26),),
-                          Text("제휴 찾기",
-                              style:
-                                  TextStyle(
-                                    fontFamily: 'elec',
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2862AA), fontSize: 30),),
+                          Text(
+                            " 카테고리별",
+                            style: TextStyle(
+                                fontFamily: 'elec',
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2862AA),
+                                fontSize: 26),
+                          ),
+                          Text(
+                            "제휴 찾기",
+                            style: TextStyle(
+                                fontFamily: 'elec',
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2862AA),
+                                fontSize: 30),
+                          ),
                         ],
                       ),
                     ),
@@ -118,28 +124,28 @@ class MyHomePage extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Image.asset(
-                      'assets/images/category.png',
-                      width: 180,
-                      height: 180
-                    ),
+                    Image.asset('assets/images/location.png',
+                        width: 180, height: 180),
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Text(" 내 주변",
-                              style:
-                                  TextStyle(
-                                    fontFamily: 'elec',
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2862AA), fontSize: 30),
-                                    ),
-                          Text("제휴 찾기",
-                              style:
-                                  TextStyle(
-                                    fontFamily: 'elec',
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2862AA), fontSize: 28),),
+                          Text(
+                            " 내 주변",
+                            style: TextStyle(
+                                fontFamily: 'elec',
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2862AA),
+                                fontSize: 30),
+                          ),
+                          Text(
+                            "제휴 찾기",
+                            style: TextStyle(
+                                fontFamily: 'elec',
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2862AA),
+                                fontSize: 28),
+                          ),
                         ],
                       ),
                     ),
@@ -158,10 +164,10 @@ class MyHomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Image.asset(
-                      'assets/images/title.png',
-                      width: 150,
-                      height: 150,
-                    ),
+                'assets/images/title.png',
+                width: 150,
+                height: 150,
+              ),
             ],
           ),
         ),

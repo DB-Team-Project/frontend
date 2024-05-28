@@ -68,6 +68,7 @@ flutter:
     - assets/images/cafe.png
     - assets/images/alcohol.png
     - assets/images/other.png
+    - assets/images/location.png
     
     
   #   - images/a_dot_ham.jpeg
