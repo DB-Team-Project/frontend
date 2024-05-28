@@ -15,6 +15,7 @@ class LoginPage extends StatelessWidget {
       );
     } else {
       print('Failed to login');
+       _showLoginFailedDialog(context);
       // 로그인 실패 처리 로직을 추가할 수 있습니다.
     }
   }
@@ -25,6 +26,27 @@ class LoginPage extends StatelessWidget {
     loginUser(username, password, context);
   }
 
+   void _showLoginFailedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('로그인 실패'),
+          content: Text('아이디 또는 비밀번호가 잘못되었습니다.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,13 +56,7 @@ class LoginPage extends StatelessWidget {
         backgroundColor: Color(0xFF2862AA),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF2862AA), Color(0xFF5FC6D4)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        color: Color(0xFF2862AA),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
