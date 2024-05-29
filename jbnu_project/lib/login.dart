@@ -7,7 +7,7 @@ class LoginPage extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
 
   void loginUser(String username, String password, BuildContext context) {
-    if (username == 'admin123' && password == 'admin123') {
+    if (username == 'a' && password == 'a') {
       print('Login successful');
       Navigator.pushReplacement(
         context,
@@ -15,7 +15,7 @@ class LoginPage extends StatelessWidget {
       );
     } else {
       print('Failed to login');
-       _showLoginFailedDialog(context);
+      _showLoginFailedDialog(context);
       // 로그인 실패 처리 로직을 추가할 수 있습니다.
     }
   }
@@ -26,7 +26,7 @@ class LoginPage extends StatelessWidget {
     loginUser(username, password, context);
   }
 
-   void _showLoginFailedDialog(BuildContext context) {
+  void _showLoginFailedDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -45,7 +45,6 @@ class LoginPage extends StatelessWidget {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
