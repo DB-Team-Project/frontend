@@ -6,10 +6,8 @@ class LoginPage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  String? _token;
-
   void loginUser(String username, String password, BuildContext context) {
-    if (username == 'admin123' && password == 'admin123') {
+    if (username == 'a' && password == 'a') {
       print('Login successful');
       Navigator.pushReplacement(
         context,
