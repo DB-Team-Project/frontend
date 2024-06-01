@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'detail.dart';
 
 class CategoryItem extends StatelessWidget {
-  final int storeId;
+  final int storeId; // storeId 추가
   final String storeName;
   final String? storeImage;
   final String description;
@@ -10,7 +10,7 @@ class CategoryItem extends StatelessWidget {
 
   const CategoryItem({
     Key? key,
-    required this.storeId,
+    required this.storeId, // storeId 추가
     required this.storeName,
     required this.description,
     required this.location,
@@ -24,6 +24,7 @@ class CategoryItem extends StatelessWidget {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => DetailPage(
+              storeId: storeId, // storeId 전달
               storeName: storeName,
               description: description,
               location: location,
@@ -36,7 +37,7 @@ class CategoryItem extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 5),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.white, // 배경색 흰색으로 설정
+          color: Colors.white,
           border: Border.all(
             color: const Color(0xFF2862AA),
             width: 5,
