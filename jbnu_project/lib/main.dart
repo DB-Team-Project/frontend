@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:jbnu_project/AuthProvider.dart';
 import 'find_in_map.dart';
 import 'find_in_category.dart';
 import 'login.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+      ChangeNotifierProvider(
+          create: (context) => AuthProvider(),
+          child: const MyApp(),
+      ),
+  );
 }
 
 class MyApp extends StatelessWidget {

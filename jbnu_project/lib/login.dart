@@ -1,32 +1,40 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:jbnu_project/AuthProvider.dart';
+import 'package:provider/provider.dart';
 import 'register.dart'; // RegisterPage를 임포트합니다.
+import 'package:http/http.dart' as http;
 import 'main.dart'; // MyHomePage를 임포트합니다.
 
 class LoginPage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void loginUser(String username, String password, BuildContext context) {
-    if (username == 'a' && password == 'a') {
-      print('Login successful');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => MyHomePage()),
-      );
-    } else {
-      print('Failed to login');
-      _showLoginFailedDialog(context);
-      // 로그인 실패 처리 로직을 추가할 수 있습니다.
-    }
+  void onLoginSuccess(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('로그인 성공'),
+          content: Text('로그인이 성공적으로 완료되었습니다.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 팝업 닫기
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                ); // MyHomePage로 이동
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  void _login(BuildContext context) {
-    final username = _usernameController.text;
-    final password = _passwordController.text;
-    loginUser(username, password, context);
-  }
-
-  void _showLoginFailedDialog(BuildContext context) {
+  void onLoginFailure(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -44,6 +52,36 @@ class LoginPage extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> loginUser(String username, String password, BuildContext context) async {
+    final url = Uri.parse('http://localhost:8080/api/login');
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'userId': username,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // 로그인 성공 처리
+      final userId = json.decode(response.body);
+      Provider.of<AuthProvider>(context, listen: false).setUserId(userId);
+      onLoginSuccess(context);
+    } else {
+      // 로그인 실패 처리
+      onLoginFailure(context);
+    }
+  }
+
+  void _login(BuildContext context) {
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+    loginUser(username, password, context);
   }
 
   @override
@@ -110,7 +148,7 @@ class LoginPage extends StatelessWidget {
                             minimumSize: Size(150, 50), // 버튼 크기 조정
                             backgroundColor: Colors.white, // 버튼 색상
                             shadowColor:
-                                Color.fromARGB(255, 90, 90, 90), // 그림자 색상
+                            Color.fromARGB(255, 90, 90, 90), // 그림자 색상
                             elevation: 5, // 그림자 높이
                           ),
                           child: Text(
@@ -128,7 +166,7 @@ class LoginPage extends StatelessWidget {
                             minimumSize: Size(150, 50), // 버튼 크기 조정
                             backgroundColor: Colors.white, // 버튼 색상
                             shadowColor:
-                                const Color.fromARGB(255, 90, 90, 90), // 그림자 색상
+                            const Color.fromARGB(255, 90, 90, 90), // 그림자 색상
                             elevation: 5, // 그림자 높이
                           ),
                           child: Text(

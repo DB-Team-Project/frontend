@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:jbnu_project/AuthProvider.dart';
+import 'package:provider/provider.dart';
 
 class DetailPage extends StatefulWidget {
   final int storeId; // storeId 추가
@@ -34,6 +36,7 @@ class _DetailPageState extends State<DetailPage> {
       _isSubmitting = true;
     });
 
+    final memberId = Provider.of<AuthProvider>(context,listen: false).userId;
     final url = Uri.parse('http://localhost:8080/api/review');
     try {
       final response = await http.post(
@@ -42,7 +45,7 @@ class _DetailPageState extends State<DetailPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          'memberId': 1, // 여기에 실제 사용자 ID를 넣어야 합니다.
+          'memberId': memberId,
           'storeId': storeId, // storeId를 Long 타입으로 전달
           'rating': rating,
           'comment': comment,
