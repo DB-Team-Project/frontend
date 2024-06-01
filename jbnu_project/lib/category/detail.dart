@@ -76,6 +76,7 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // 전체 배경을 흰색으로 설정
       appBar: AppBar(
         title: Text(
           widget.storeName,
@@ -103,7 +104,8 @@ class _DetailPageState extends State<DetailPage> {
             Container(
               width: double.infinity,
               height: 200,
-              color: Colors.grey[300],
+              color: Colors.white,
+              padding: const EdgeInsets.all(20),
               child: widget.storeImage != null && widget.storeImage!.isNotEmpty
                   ? Image.network(
                       widget.storeImage!,
@@ -138,7 +140,7 @@ class _DetailPageState extends State<DetailPage> {
               style: TextStyle(
                 fontFamily: 'elec',
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Color(0xFF2862AA),
                 fontSize: 18,
               ),
             ),
@@ -165,8 +167,12 @@ class _DetailPageState extends State<DetailPage> {
               controller: _commentController,
               decoration: const InputDecoration(
                 labelText: '리뷰 내용',
+                labelStyle: TextStyle(
+                  fontFamily: 'elec',
+                  color: Color(0xFF2862AA), // elec 폰트 설정
+                ),
               ),
-              maxLines: 3,
+              maxLines: 2,
             ),
             const SizedBox(height: 16),
             Center(
@@ -181,7 +187,10 @@ class _DetailPageState extends State<DetailPage> {
                           _commentController.text,
                         );
                       },
-                      child: const Text('리뷰 제출'),
+                      child: const Text(
+                        '리뷰 제출',
+                        style: TextStyle(color: Color(0xFF2862AA)),
+                      ),
                     ),
             ),
             const SizedBox(height: 16),
@@ -191,7 +200,7 @@ class _DetailPageState extends State<DetailPage> {
               style: TextStyle(
                 fontFamily: 'elec',
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Color(0xFF2862AA),
                 fontSize: 18,
               ),
             ),
