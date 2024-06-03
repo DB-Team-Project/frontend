@@ -53,6 +53,7 @@ class _DetailPageState extends State<DetailPage> {
         _storeDetails = jsonData;
         _reviews = jsonData['reviews'];
         print('Reviews: $_reviews'); // 리뷰 데이터가 올바르게 파싱되는지 확인
+        print('Store Image: ${widget.storeImage}'); // storeImage 값 확인
         _isLoading = false;
       });
     } else {
@@ -112,8 +113,145 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
+  Future<void> _deleteReview(int reviewId) async {
+    final memberId = Provider.of<AuthProvider>(context, listen: false).userId;
+    final url = Uri.parse('http://localhost:8080/api/review/$reviewId');
+    try {
+      final response = await http.delete(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'memberId': memberId,
+        }),
+      );
+
+      if (response.statusCode == 204) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('리뷰가 성공적으로 삭제되었습니다.')),
+        );
+        _fetchStoreDetails(); // 리뷰 삭제 후 세부 정보 및 리뷰 목록 다시 가져오기
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('리뷰 삭제에 실패했습니다. 다시 시도해주세요.')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('리뷰 삭제 중 오류가 발생했습니다: $error')),
+      );
+    }
+  }
+
+  Future<void> _updateReview(
+      int reviewId, int storeId, double rating, String comment) async {
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final memberId = Provider.of<AuthProvider>(context, listen: false).userId;
+    final url = Uri.parse('http://localhost:8080/api/review/$reviewId');
+    try {
+      final response = await http.put(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'memberId': memberId,
+          'storeId': storeId,
+          'rating': rating,
+          'comment': comment,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('리뷰가 성공적으로 수정되었습니다.')),
+        );
+        _fetchStoreDetails(); // 리뷰 수정 후 세부 정보 및 리뷰 목록 다시 가져오기
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('리뷰 수정에 실패했습니다. 다시 시도해주세요.')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('리뷰 수정 중 오류가 발생했습니다: $error')),
+      );
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
+  }
+
+  void _showEditDialog(
+      int reviewId, int storeId, double initialRating, String initialComment) {
+    double _newRating = initialRating;
+    TextEditingController _newCommentController =
+        TextEditingController(text: initialComment);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('리뷰 수정'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RatingBar.builder(
+                initialRating: _newRating,
+                minRating: 1,
+                direction: Axis.horizontal,
+                allowHalfRating: false,
+                itemCount: 5,
+                itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                itemBuilder: (context, _) => const Icon(
+                  Icons.star,
+                  color: Colors.amber,
+                ),
+                onRatingUpdate: (rating) {
+                  _newRating = rating;
+                },
+              ),
+              TextField(
+                controller: _newCommentController,
+                decoration: const InputDecoration(labelText: '리뷰 내용'),
+                maxLines: 2,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                _updateReview(
+                  reviewId,
+                  storeId,
+                  _newRating,
+                  _newCommentController.text,
+                );
+                Navigator.of(context).pop();
+              },
+              child: const Text('저장'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final memberId = Provider.of<AuthProvider>(context, listen: false).userId;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -144,16 +282,18 @@ class _DetailPageState extends State<DetailPage> {
                 children: [
                   Container(
                     width: double.infinity,
-                    height: 200,
+                    height: 400,
                     color: Colors.white,
                     padding: const EdgeInsets.all(20),
-                    child: widget.storeImage != null &&
-                            widget.storeImage!.isNotEmpty
-                        ? Image.network(
-                            widget.storeImage!,
-                            fit: BoxFit.cover,
-                          )
-                        : const Center(child: Text("이미지 없음")),
+                    child: Center(
+                      child: widget.storeImage != null &&
+                              widget.storeImage!.isNotEmpty
+                          ? Image.network(
+                              widget.storeImage!,
+                              fit: BoxFit.contain,
+                            )
+                          : const Text("이미지 없음"),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -201,7 +341,7 @@ class _DetailPageState extends State<DetailPage> {
                     initialRating: 0,
                     minRating: 1,
                     direction: Axis.horizontal,
-                    allowHalfRating: true,
+                    allowHalfRating: false,
                     itemCount: 5,
                     itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
                     itemBuilder: (context, _) => const Icon(
@@ -277,16 +417,21 @@ class _DetailPageState extends State<DetailPage> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              RatingBarIndicator(
-                                rating: review['rating'].toDouble(),
-                                itemBuilder: (context, index) => const Icon(
+                              RatingBar.builder(
+                                initialRating: review['rating'].toDouble(),
+                                minRating: 1,
+                                direction: Axis.horizontal,
+                                allowHalfRating: false,
+                                ignoreGestures: true,
+                                itemCount: 5,
+                                itemSize: 20.0,
+                                itemBuilder: (context, _) => const Icon(
                                   Icons.star,
                                   color: Colors.amber,
                                 ),
-                                itemCount: 5,
-                                itemSize: 20.0,
-                                direction: Axis.horizontal,
-                                unratedColor: Colors.amber.withAlpha(50),
+                                onRatingUpdate: (rating) {
+                                  // 이미 ignoreGestures가 true라 호출되지 않음
+                                },
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -296,6 +441,35 @@ class _DetailPageState extends State<DetailPage> {
                                   color: Color(0xFF5FC6D4),
                                 ),
                               ),
+                              const SizedBox(height: 4),
+                              if (review['memberId'] == memberId)
+                                Row(
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        _deleteReview(review['reviewId']);
+                                      },
+                                      child: const Text(
+                                        '삭제',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        _showEditDialog(
+                                          review['reviewId'],
+                                          widget.storeId,
+                                          review['rating'].toDouble(),
+                                          review['reviewText'],
+                                        );
+                                      },
+                                      child: const Text(
+                                        '수정',
+                                        style: TextStyle(color: Colors.blue),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                             ],
                           ),
                         ),
