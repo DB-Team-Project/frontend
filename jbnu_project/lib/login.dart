@@ -54,7 +54,8 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Future<void> loginUser(String username, String password, BuildContext context) async {
+  Future<void> loginUser(
+      String username, String password, BuildContext context) async {
     final url = Uri.parse('http://localhost:8080/api/login');
     final response = await http.post(
       url,
@@ -68,9 +69,13 @@ class LoginPage extends StatelessWidget {
     );
 
     if (response.statusCode == 200) {
+      final jsonString = utf8.decode(response.bodyBytes);
+      final jsonData = json.decode(jsonString);
+      Provider.of<AuthProvider>(context, listen: false)
+          .setUserId(jsonData['userId']);
+      Provider.of<AuthProvider>(context, listen: false)
+          .setUserName(jsonData['userName']);
       // 로그인 성공 처리
-      final userId = json.decode(response.body);
-      Provider.of<AuthProvider>(context, listen: false).setUserId(userId);
       onLoginSuccess(context);
     } else {
       // 로그인 실패 처리
@@ -88,7 +93,10 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: const Text(
+          'Login',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         backgroundColor: Color(0xFF2862AA),
       ),
@@ -148,7 +156,7 @@ class LoginPage extends StatelessWidget {
                             minimumSize: Size(150, 50), // 버튼 크기 조정
                             backgroundColor: Colors.white, // 버튼 색상
                             shadowColor:
-                            Color.fromARGB(255, 90, 90, 90), // 그림자 색상
+                                Color.fromARGB(255, 90, 90, 90), // 그림자 색상
                             elevation: 5, // 그림자 높이
                           ),
                           child: Text(
@@ -166,7 +174,7 @@ class LoginPage extends StatelessWidget {
                             minimumSize: Size(150, 50), // 버튼 크기 조정
                             backgroundColor: Colors.white, // 버튼 색상
                             shadowColor:
-                            const Color.fromARGB(255, 90, 90, 90), // 그림자 색상
+                                const Color.fromARGB(255, 90, 90, 90), // 그림자 색상
                             elevation: 5, // 그림자 높이
                           ),
                           child: Text(

@@ -129,6 +129,7 @@ class _RicePageState extends State<RicePage> {
                       description: restaurant['description'],
                       storeImage: restaurant['storeImage'],
                       location: restaurant['location'],
+                      categoryName: restaurant['categoryName'],
                     ),
                   );
                 },

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'login.dart';  // 로그인 페이지 import
+import 'login.dart'; // 로그인 페이지 import
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -11,7 +11,8 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isUsernameAvailable = true;
 
   void onRegisterSuccess(BuildContext context) {
@@ -117,16 +118,16 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Register'),
-        backgroundColor: Color(0xFF2862AA), // 앱바 색상 변경
+        title: const Text(
+          'register',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Color(0xFF2862AA),
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF2862AA), Color(0xFF5FC6D4)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+          color: Color(0xFF2862AA),
         ),
         child: Center(
           child: Padding(
