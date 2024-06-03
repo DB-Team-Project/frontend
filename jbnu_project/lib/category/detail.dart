@@ -53,7 +53,6 @@ class _DetailPageState extends State<DetailPage> {
         _storeDetails = jsonData;
         _reviews = jsonData['reviews'];
         print('Reviews: $_reviews'); // 리뷰 데이터가 올바르게 파싱되는지 확인
-        print('Store Image: ${widget.storeImage}'); // storeImage 값 확인
         _isLoading = false;
       });
     } else {
@@ -63,6 +62,13 @@ class _DetailPageState extends State<DetailPage> {
 
   Future<void> _submitReview(
       BuildContext context, int storeId, double rating, String comment) async {
+    if (rating == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('평점을 0점으로 제출할 수 없습니다.')),
+      );
+      return;
+    }
+
     setState(() {
       _isSubmitting = true;
     });
@@ -113,7 +119,11 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
-  Future<void> _deleteReview(int reviewId) async {
+  Future<void> _deleteReview(int reviewId, int storeId) async {
+    setState(() {
+      _isSubmitting = true;
+    });
+
     final memberId = Provider.of<AuthProvider>(context, listen: false).userId;
     final url = Uri.parse('http://localhost:8080/api/review/$reviewId');
     try {
@@ -124,6 +134,7 @@ class _DetailPageState extends State<DetailPage> {
         },
         body: jsonEncode(<String, dynamic>{
           'memberId': memberId,
+          'storeId': storeId,
         }),
       );
 
@@ -131,7 +142,7 @@ class _DetailPageState extends State<DetailPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('리뷰가 성공적으로 삭제되었습니다.')),
         );
-        _fetchStoreDetails(); // 리뷰 삭제 후 세부 정보 및 리뷰 목록 다시 가져오기
+        await _fetchStoreDetails(); // 리뷰 삭제 후 세부 정보 및 리뷰 목록 다시 가져오기
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('리뷰 삭제에 실패했습니다. 다시 시도해주세요.')),
@@ -141,6 +152,10 @@ class _DetailPageState extends State<DetailPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('리뷰 삭제 중 오류가 발생했습니다: $error')),
       );
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
     }
   }
 
@@ -248,6 +263,33 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
+  void _showDeleteDialog(int reviewId, int storeId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('리뷰 삭제'),
+          content: Text('정말로 리뷰를 삭제하시겠습니까?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+                _deleteReview(reviewId, storeId); // 리뷰 삭제 함수 호출
+              },
+              child: const Text('삭제'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final memberId = Provider.of<AuthProvider>(context, listen: false).userId;
@@ -285,15 +327,13 @@ class _DetailPageState extends State<DetailPage> {
                     height: 400,
                     color: Colors.white,
                     padding: const EdgeInsets.all(20),
-                    child: Center(
-                      child: widget.storeImage != null &&
-                              widget.storeImage!.isNotEmpty
-                          ? Image.network(
-                              widget.storeImage!,
-                              fit: BoxFit.contain,
-                            )
-                          : const Text("이미지 없음"),
-                    ),
+                    child: widget.storeImage != null &&
+                            widget.storeImage!.isNotEmpty
+                        ? Image.network(
+                            widget.storeImage!,
+                            fit: BoxFit.contain,
+                          )
+                        : const Center(child: Text("이미지 없음")),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -338,7 +378,7 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                   const SizedBox(height: 16),
                   RatingBar.builder(
-                    initialRating: 0,
+                    initialRating: _rating,
                     minRating: 1,
                     direction: Axis.horizontal,
                     allowHalfRating: false,
@@ -372,12 +412,24 @@ class _DetailPageState extends State<DetailPage> {
                         ? CircularProgressIndicator()
                         : ElevatedButton(
                             onPressed: () {
-                              _submitReview(
-                                context,
-                                widget.storeId,
-                                _rating,
-                                _commentController.text,
-                              );
+                              if (_rating > 0) {
+                                _submitReview(
+                                  context,
+                                  widget.storeId,
+                                  _rating,
+                                  _commentController.text,
+                                ).then((_) {
+                                  setState(() {
+                                    _rating = 0; // 별점을 초기화
+                                  });
+                                });
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('평점을 입력하세요.'),
+                                  ),
+                                );
+                              }
                             },
                             child: const Text(
                               '리뷰 제출',
@@ -447,7 +499,8 @@ class _DetailPageState extends State<DetailPage> {
                                   children: [
                                     TextButton(
                                       onPressed: () {
-                                        _deleteReview(review['reviewId']);
+                                        _showDeleteDialog(
+                                            review['reviewId'], widget.storeId);
                                       },
                                       child: const Text(
                                         '삭제',
