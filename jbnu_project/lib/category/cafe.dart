@@ -129,6 +129,7 @@ class _CafePageState extends State<CafePage> {
                       description: cafe['description'],
                       storeImage: cafe['storeImage'],
                       location: cafe['location'],
+                      categoryName: cafe['categoryName'],
                     ),
                   );
                 },

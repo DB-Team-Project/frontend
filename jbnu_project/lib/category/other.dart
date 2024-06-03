@@ -129,6 +129,7 @@ class _OtherPageState extends State<OtherPage> {
                       description: etc['description'],
                       storeImage: etc['storeImage'],
                       location: etc['location'],
+                      categoryName: etc['categoryName'],
                     ),
                   );
                 },

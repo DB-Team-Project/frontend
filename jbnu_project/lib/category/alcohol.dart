@@ -129,6 +129,7 @@ class _AlcoholPageState extends State<AlcoholPage> {
                       description: bar['description'],
                       storeImage: bar['storeImage'],
                       location: bar['location'],
+                      categoryName: bar['categoryName'],
                     ),
                   );
                 },

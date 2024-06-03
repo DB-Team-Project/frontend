@@ -7,6 +7,7 @@ class CategoryItem extends StatelessWidget {
   final String? storeImage;
   final String description;
   final String location;
+  final String categoryName;
 
   const CategoryItem({
     Key? key,
@@ -14,6 +15,7 @@ class CategoryItem extends StatelessWidget {
     required this.storeName,
     required this.description,
     required this.location,
+    required this.categoryName,
     this.storeImage,
   }) : super(key: key);
 
@@ -29,6 +31,7 @@ class CategoryItem extends StatelessWidget {
               description: description,
               location: location,
               storeImage: storeImage,
+              categoryName: categoryName,
             ),
           ),
         );

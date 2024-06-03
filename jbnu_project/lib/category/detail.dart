@@ -2,22 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:jbnu_project/AuthProvider.dart';
 import 'package:provider/provider.dart';
+import '../AuthProvider.dart';
 
 class DetailPage extends StatefulWidget {
-  final int storeId; // storeId 추가
+  final int storeId;
   final String storeName;
   final String description;
   final String location;
   final String? storeImage;
+  final String categoryName;
 
   const DetailPage({
     Key? key,
-    required this.storeId, // storeId 추가
+    required this.storeId,
     required this.storeName,
     required this.description,
     required this.location,
+    required this.categoryName,
     this.storeImage,
   }) : super(key: key);
 
@@ -26,9 +28,37 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  final TextEditingController _commentController = TextEditingController();
+  Map<String, dynamic>? _storeDetails;
+  List<dynamic> _reviews = [];
+  bool _isLoading = true;
   double _rating = 0;
+  final TextEditingController _commentController = TextEditingController();
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStoreDetails();
+  }
+
+  Future<void> _fetchStoreDetails() async {
+    final response = await http.get(Uri.parse(
+        'http://localhost:8080/api/category/${widget.categoryName}/${widget.storeId}'));
+
+    if (response.statusCode == 200) {
+      final jsonString = utf8.decode(response.bodyBytes);
+      final jsonData = json.decode(jsonString);
+      print('Fetched data: $jsonData'); // 데이터를 제대로 가져왔는지 확인하는 로그
+      setState(() {
+        _storeDetails = jsonData;
+        _reviews = jsonData['reviews'];
+        print('Reviews: $_reviews'); // 리뷰 데이터가 올바르게 파싱되는지 확인
+        _isLoading = false;
+      });
+    } else {
+      throw Exception('Failed to load store details');
+    }
+  }
 
   Future<void> _submitReview(
       BuildContext context, int storeId, double rating, String comment) async {
@@ -36,7 +66,9 @@ class _DetailPageState extends State<DetailPage> {
       _isSubmitting = true;
     });
 
-    final memberId = Provider.of<AuthProvider>(context,listen: false).userId;
+    final memberId = Provider.of<AuthProvider>(context, listen: false).userId;
+    final memberName =
+        Provider.of<AuthProvider>(context, listen: false).userName;
     final url = Uri.parse('http://localhost:8080/api/review');
     try {
       final response = await http.post(
@@ -46,7 +78,7 @@ class _DetailPageState extends State<DetailPage> {
         },
         body: jsonEncode(<String, dynamic>{
           'memberId': memberId,
-          'storeId': storeId, // storeId를 Long 타입으로 전달
+          'storeId': storeId,
           'rating': rating,
           'comment': comment,
         }),
@@ -59,17 +91,21 @@ class _DetailPageState extends State<DetailPage> {
         _commentController.clear();
         setState(() {
           _rating = 0;
+          _isSubmitting = false;
         });
+        _fetchStoreDetails(); // 리뷰 제출 후 세부 정보 및 리뷰 목록 다시 가져오기
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('리뷰 제출에 실패했습니다. 다시 시도해주세요.')),
         );
+        setState(() {
+          _isSubmitting = false;
+        });
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('리뷰 제출 중 오류가 발생했습니다: $error')),
       );
-    } finally {
       setState(() {
         _isSubmitting = false;
       });
@@ -79,7 +115,7 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // 전체 배경을 흰색으로 설정
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           widget.storeName,
@@ -99,118 +135,176 @@ class _DetailPageState extends State<DetailPage> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              height: 200,
-              color: Colors.white,
-              padding: const EdgeInsets.all(20),
-              child: widget.storeImage != null && widget.storeImage!.isNotEmpty
-                  ? Image.network(
-                      widget.storeImage!,
-                      fit: BoxFit.cover,
-                    )
-                  : const Center(child: Text("이미지 없음")),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              widget.description,
-              style: const TextStyle(
-                fontFamily: 'elec',
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF5FC6D4),
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '위치: ${widget.location}',
-              style: const TextStyle(
-                fontFamily: 'elec',
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF5FC6D4),
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Divider(),
-            const Text(
-              '리뷰를 작성하세요',
-              style: TextStyle(
-                fontFamily: 'elec',
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2862AA),
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 16),
-            RatingBar.builder(
-              initialRating: 0,
-              minRating: 1,
-              direction: Axis.horizontal,
-              allowHalfRating: true,
-              itemCount: 5,
-              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-              itemBuilder: (context, _) => const Icon(
-                Icons.star,
-                color: Colors.amber,
-              ),
-              onRatingUpdate: (rating) {
-                setState(() {
-                  _rating = rating;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _commentController,
-              decoration: const InputDecoration(
-                labelText: '리뷰 내용',
-                labelStyle: TextStyle(
-                  fontFamily: 'elec',
-                  color: Color(0xFF2862AA), // elec 폰트 설정
-                ),
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: _isSubmitting
-                  ? CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: () {
-                        _submitReview(
-                          context,
-                          widget.storeId, // 올바른 storeId 전달
-                          _rating,
-                          _commentController.text,
-                        );
-                      },
-                      child: const Text(
-                        '리뷰 제출',
-                        style: TextStyle(color: Color(0xFF2862AA)),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 200,
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(20),
+                    child: widget.storeImage != null &&
+                            widget.storeImage!.isNotEmpty
+                        ? Image.network(
+                            widget.storeImage!,
+                            fit: BoxFit.cover,
+                          )
+                        : const Center(child: Text("이미지 없음")),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.description,
+                    style: const TextStyle(
+                      fontFamily: 'elec',
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF5FC6D4),
+                      fontSize: 20,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '위치: ${widget.location}',
+                    style: const TextStyle(
+                      fontFamily: 'elec',
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF5FC6D4),
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '평균 평점: ${_storeDetails!['avgRating']}',
+                    style: const TextStyle(
+                      fontFamily: 'elec',
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF5FC6D4),
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const Text(
+                    '리뷰를 작성하세요',
+                    style: TextStyle(
+                      fontFamily: 'elec',
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2862AA),
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  RatingBar.builder(
+                    initialRating: 0,
+                    minRating: 1,
+                    direction: Axis.horizontal,
+                    allowHalfRating: true,
+                    itemCount: 5,
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    itemBuilder: (context, _) => const Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                    ),
+                    onRatingUpdate: (rating) {
+                      setState(() {
+                        _rating = rating;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _commentController,
+                    decoration: const InputDecoration(
+                      labelText: '리뷰 내용',
+                      labelStyle: TextStyle(
+                        fontFamily: 'elec',
+                        color: Color(0xFF2862AA),
                       ),
                     ),
-            ),
-            const SizedBox(height: 16),
-            const Divider(),
-            const Text(
-              '리뷰 내용',
-              style: TextStyle(
-                fontFamily: 'elec',
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2862AA),
-                fontSize: 18,
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: _isSubmitting
+                        ? CircularProgressIndicator()
+                        : ElevatedButton(
+                            onPressed: () {
+                              _submitReview(
+                                context,
+                                widget.storeId,
+                                _rating,
+                                _commentController.text,
+                              );
+                            },
+                            child: const Text(
+                              '리뷰 제출',
+                              style: TextStyle(color: Color(0xFF2862AA)),
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const Text(
+                    '리뷰 목록',
+                    style: TextStyle(
+                      fontFamily: 'elec',
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2862AA),
+                      fontSize: 18,
+                    ),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: _reviews.length,
+                    itemBuilder: (context, index) {
+                      final review = _reviews[index];
+                      print('Review: $review'); // 각 리뷰 데이터가 올바르게 전달되는지 확인
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: ListTile(
+                          title: Text(
+                            '${review['memberName']}',
+                            style: const TextStyle(
+                              fontFamily: 'elec',
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2862AA),
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RatingBarIndicator(
+                                rating: review['rating'].toDouble(),
+                                itemBuilder: (context, index) => const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                itemCount: 5,
+                                itemSize: 20.0,
+                                direction: Axis.horizontal,
+                                unratedColor: Colors.amber.withAlpha(50),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                review['reviewText'],
+                                style: const TextStyle(
+                                  fontFamily: 'elec',
+                                  color: Color(0xFF5FC6D4),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
-            // 여기에 리뷰 리스트를 추가할 수 있습니다.
-          ],
-        ),
-      ),
     );
   }
 }
