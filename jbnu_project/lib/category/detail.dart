@@ -43,7 +43,7 @@ class _DetailPageState extends State<DetailPage> {
 
   Future<void> _fetchStoreDetails() async {
     final response = await http.get(Uri.parse(
-        'http://localhost:8080/api/category/${widget.categoryName}/${widget.storeId}'));
+        'http://192.168.242.51:8080/api/category/${widget.categoryName}/${widget.storeId}'));
 
     if (response.statusCode == 200) {
       final jsonString = utf8.decode(response.bodyBytes);
@@ -76,7 +76,7 @@ class _DetailPageState extends State<DetailPage> {
     final memberId = Provider.of<AuthProvider>(context, listen: false).userId;
     final memberName =
         Provider.of<AuthProvider>(context, listen: false).userName;
-    final url = Uri.parse('http://localhost:8080/api/review');
+    final url = Uri.parse('http://192.168.242.51:8080/api/review');
     try {
       final response = await http.post(
         url,
@@ -125,7 +125,7 @@ class _DetailPageState extends State<DetailPage> {
     });
 
     final memberId = Provider.of<AuthProvider>(context, listen: false).userId;
-    final url = Uri.parse('http://localhost:8080/api/review/$reviewId');
+    final url = Uri.parse('http://192.168.242.51:8080/api/review/$reviewId');
     try {
       final response = await http.delete(
         url,
@@ -166,7 +166,7 @@ class _DetailPageState extends State<DetailPage> {
     });
 
     final memberId = Provider.of<AuthProvider>(context, listen: false).userId;
-    final url = Uri.parse('http://localhost:8080/api/review/$reviewId');
+    final url = Uri.parse('http://192.168.242.51:8080/api/review/$reviewId');
     try {
       final response = await http.put(
         url,

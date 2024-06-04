@@ -56,7 +56,7 @@ class LoginPage extends StatelessWidget {
 
   Future<void> loginUser(
       String username, String password, BuildContext context) async {
-    final url = Uri.parse('http://localhost:8080/api/login');
+    final url = Uri.parse('http://192.168.242.51:8080/api/login');
     final response = await http.post(
       url,
       headers: <String, String>{

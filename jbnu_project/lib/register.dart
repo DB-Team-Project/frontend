@@ -63,7 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> registerUser(String username, String password) async {
-    final url = Uri.parse('http://localhost:8080/api/signup');
+    final url = Uri.parse('http://192.168.242.51:8080/api/signup');
     final response = await http.post(
       url,
       headers: <String, String>{
@@ -90,7 +90,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> checkUsernameAvailability(String username) async {
     final response = await http.get(
-        Uri.parse('http://localhost:8080/check-username?username=$username'));
+        Uri.parse('http://192.168.242.51:8080/check-username?username=$username'));
 
     if (response.statusCode == 200) {
       final users = json.decode(response.body) as List;

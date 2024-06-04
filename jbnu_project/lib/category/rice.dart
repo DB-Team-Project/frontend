@@ -31,7 +31,7 @@ class _RicePageState extends State<RicePage> {
 
   Future<void> _fetchRestaurants() async {
     final response = await http
-        .get(Uri.parse('http://localhost:8080/api/category/restaurant'));
+        .get(Uri.parse('http://192.168.242.51:8080/api/category/restaurant'));
 
     if (response.statusCode == 200) {
       final jsonString = utf8.decode(response.bodyBytes);

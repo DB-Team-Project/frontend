@@ -31,7 +31,7 @@ class _AlcoholPageState extends State<AlcoholPage> {
 
   Future<void> _fetchBars() async {
     final response =
-        await http.get(Uri.parse('http://localhost:8080/api/category/bar'));
+        await http.get(Uri.parse('http://192.168.242.51:8080/api/category/bar'));
 
     if (response.statusCode == 200) {
       final jsonString = utf8.decode(response.bodyBytes);

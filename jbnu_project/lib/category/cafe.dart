@@ -31,7 +31,7 @@ class _CafePageState extends State<CafePage> {
 
   Future<void> _fetchCafes() async {
     final response =
-        await http.get(Uri.parse('http://localhost:8080/api/category/cafe'));
+        await http.get(Uri.parse('http://192.168.242.51:8080/api/category/cafe'));
 
     if (response.statusCode == 200) {
       final jsonString = utf8.decode(response.bodyBytes);

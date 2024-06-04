@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:jbnu_project/AuthProvider.dart';
-import 'find_in_map.dart';
 import 'find_in_category.dart';
 import 'login.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+
+import 'map/find_in_map.dart';
 
 void main() {
   runApp(
@@ -116,7 +117,7 @@ class MyHomePage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const NewPage2()),
+                  MaterialPageRoute(builder: (context) => MapScreen()),
                 );
               },
               child: Container(
